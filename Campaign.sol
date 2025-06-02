@@ -10,6 +10,12 @@ contract Campaign {
         bool complete;
     }
 
+    modifier restricted(){
+        require(msg.sender == manager);
+        _;
+    }
+
+    Request[] public request;
     address public manager;
     uint public minimumContribution;
     address[] public approvers;
