@@ -6,8 +6,10 @@ contract Campaign {
     struct Request{
         string description;
         uint value;
-        address payable recipient; //it can be another address
+        address recipient; //it can be another address
         bool complete;
+        uint approvalCount;
+        mapping(address => bool) approvals; // Renamed from approverals
     }
 
     modifier restricted(){
@@ -15,7 +17,7 @@ contract Campaign {
         _;
     }
 
-    Request[] public request;
+    Request[] public requests;
     address public manager;
     uint public minimumContribution;
     mapping(address => bool) public approvers;
@@ -31,16 +33,24 @@ contract Campaign {
         approvers[msg.sender] = true;
     } 
 
-    function createRequest(string memory description, uint value, address recipient) public restricted
-    {
-        require(approvers[msg.sender]);
-        Request memory newRequest = Request({
-            description: description,
-            value: value,
-            recipient: payable(recipient),
-            complete: false
-        });
+    function createRequest(string memory description, uint value, address recipient) public restricted {
+        Request storage newRequest = requests.push(); 
+        newRequest.description = description;
+        newRequest.value= value;
+        newRequest.recipient= recipient;
+        newRequest.complete= false;
+        newRequest.approvalCount= 0;
+    }
 
-        request.push(newRequest);
+    function approveRequest(uint index) public restricted
+    {
+        Request storage request = requests[index];
+
+        require(approvers[msg.sender]);
+        require(!requests[index].approvals[msg.sender] == false); //require statents can take place anywhere in the code
+
+        requests[index].approvals[msg.sender] = true;
+        requests[index].approvalCount++;
+    
     }
 }
