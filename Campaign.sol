@@ -2,13 +2,25 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+contract CampaignFactory {
+    address[] public deployedCampaigns;
+    
+    function createCampaign(uint minimum) public{
+        Campaign newCampaign = new Campaign(minimum, msg.sender);
+        deployedCampaigns.push(address(newCampaign));
+    }
+
+    function getDeployedCampaigns() public view returns (address[] memory) {
+        return deployedCampaigns;
+    }
+}
 contract Campaign {
     struct Request{
         string description;
         uint value;
         address payable recipient; //it can be another address
         bool complete;
-        uint approvalCount;
+        uint approvalCount; 
         mapping(address => bool) approvals; // Renamed from approverals
     }
 
@@ -18,13 +30,13 @@ contract Campaign {
     }
 
     Request[] public requests;
-    address public manager;
-    uint public minimumContribution;
-    uint public approversCount;
+    address public manager; //address of the manager
+    uint public minimumContribution; //min amt of contributers for the campaign
+    uint public approversCount; //number of approvers
     mapping(address => bool) public approvers;
     
-    constructor(uint minimum) {
-        manager = msg.sender;
+    constructor(uint minimum, address creator) {
+        manager = creator;
         minimumContribution = minimum;
     }
 
@@ -61,7 +73,7 @@ contract Campaign {
         Request storage request = requests[index]; 
         //this is a local variable created to use the request from
         //it's storage copy
-        require(request.approvalCount > (approversCount / 2));
+        require(request.approvalCount > (approversCount / 2)); //checks that more than half of people have approve the campaign
         require(!request.complete); //stops people from finilizing the request multiple times
         
         request.recipient.transfer(request.value);
