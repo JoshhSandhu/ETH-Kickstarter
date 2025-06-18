@@ -25,15 +25,19 @@ contract Campaign {
     }
 
     modifier restricted(){
-        require(msg.sender == manager);
+        require(
+            msg.sender == manager,
+            "Not the manager"
+        );
         _;
     }
 
-    Request[] public requests;
+    uint public numRequests;
     address public manager; //address of the manager
     uint public minimumContribution; //min amt of contributers for the campaign
     uint public approversCount; //number of approvers
     mapping(address => bool) public approvers;
+    mapping(uint => Request) public requests;
     
     constructor(uint minimum, address creator) {
         manager = creator;
@@ -41,14 +45,25 @@ contract Campaign {
     }
 
     //the payable keywords helps Contributers recive transcations
-    function Contributers() public payable {
-        require(msg.value > minimumContribution, "The minimum contribution is not met");
-        approvers[msg.sender] = true;
-        approversCount++;
+   function contribute() public payable {
+        require(
+            msg.value > minimumContribution, 
+            "The minimum contribution is not met"
+        );
+
+       if (!approvers[msg.sender]) {
+            approvers[msg.sender] = true;
+            approversCount++;
+       }
+       
     } 
 
-    function createRequest(string memory description, uint value, address payable recipient) public restricted {
-        Request storage newRequest = requests.push(); 
+    function createRequest(
+        string memory description, 
+        uint value, 
+        address payable recipient
+    ) public restricted {
+        Request storage newRequest = requests[numRequests++]; 
         newRequest.description = description;
         newRequest.value= value;
         newRequest.recipient= recipient;
@@ -60,21 +75,41 @@ contract Campaign {
     {
         Request storage request = requests[index];
 
-        require(approvers[msg.sender]); //makes sure this person is the approver
-        require(!requests[index].approvals[msg.sender] == false); //to make sure the approver has not voted till now
+        //makes sure this person is the approver
+        require(
+            approvers[msg.sender], 
+            "Not an approver"
+        ); 
+        
+        //to make sure the approver has not voted till now
         //require statents can take place anywhere in the code
-
+        require(
+            !request.approvals[msg.sender], //already storing the request in a local variable
+            "Already approved"
+        ); 
+        
         requests[index].approvals[msg.sender] = true; //the approver has been marked voted on the list
         requests[index].approvalCount++; // the approval count has been updated
     
     }
 
-    function finializeRequest(uint index) public restricted{
-        Request storage request = requests[index]; 
-        //this is a local variable created to use the request from
+    function finalizeRequest(uint index) public restricted
+    {
         //it's storage copy
-        require(request.approvalCount > (approversCount / 2)); //checks that more than half of people have approve the campaign
-        require(!request.complete); //stops people from finilizing the request multiple times
+        //this is a local variable created to use the request from
+        Request storage request = requests[index]; 
+        
+        //checks that more than half of people have approve the campaign
+        require(
+            request.approvalCount > (approversCount / 2),
+            "Not enough approvers"
+        );
+
+        //stops people from finilizing the request multiple times
+        require(
+            !request.complete,
+            "Request already finalized"
+        ); 
         
         request.recipient.transfer(request.value);
         request.complete = true;
