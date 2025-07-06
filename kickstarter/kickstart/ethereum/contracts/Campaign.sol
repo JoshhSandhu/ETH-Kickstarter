@@ -32,12 +32,12 @@ contract Campaign {
         _;
     }
 
-    uint public numRequests;
+    mapping(uint => Request) public requests;
     address public manager; //address of the manager
+    uint public numRequests;
     uint public minimumContribution; //min amt of contributers for the campaign
     uint public approversCount; //number of approvers
     mapping(address => bool) public approvers;
-    mapping(uint => Request) public requests;
     
     constructor(uint minimum, address creator) {
         manager = creator;

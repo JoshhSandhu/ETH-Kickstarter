@@ -1,42 +1,51 @@
 const path = require('path');
-const solc = require('solc');
 const fs = require('fs-extra');
+const solc = require('solc');
 
-// Delete the build folder
+// Clean up old build folder
 const buildPath = path.resolve(__dirname, 'build');
 fs.removeSync(buildPath);
 
-const contractFilePath = path.resolve(__dirname, 'contracts', 'Campaign.sol');
-const source = fs.readFileSync(contractFilePath, 'utf8');
+// Read Campaign.sol
+const campaignPath = path.resolve(__dirname, 'contracts', 'Campaign.sol');
+const source = fs.readFileSync(campaignPath, 'utf8');
 
+// Standard JSON input format for solc
 const input = {
   language: 'Solidity',
   sources: {
     'Campaign.sol': {
-      content: source
-    }
+      content: source,
+    },
   },
   settings: {
     outputSelection: {
       '*': {
-        '*': ['*']
-      }
-    }
-  }
+        '*': ['*'],
+      },
+    },
+  },
 };
 
-// If this throws, it means solc.compile is returning an object not a string
-const result = solc.compile(JSON.stringify(input));
-console.log('Result type:', typeof result); // ← DEBUG
-const compiled = typeof result === 'string' ? JSON.parse(result) : result;
+// Compile
+const output = JSON.parse(solc.compile(JSON.stringify(input)));
 
+// Check for errors
+if (output.errors) {
+  output.errors.forEach((err) => {
+    console.log(err.formattedMessage);
+  });
+}
+
+// Write each contract to /build
 fs.ensureDirSync(buildPath);
+const contracts = output.contracts['Campaign.sol'];
 
-for (let contractName in compiled.contracts['Campaign.sol']) {
+for (let contractName in contracts) {
   fs.outputJsonSync(
     path.resolve(buildPath, `${contractName}.json`),
-    compiled.contracts['Campaign.sol'][contractName]
+    contracts[contractName]
   );
 }
 
-console.log("Compilation complete!");
+console.log("✅ Compilation complete!");
