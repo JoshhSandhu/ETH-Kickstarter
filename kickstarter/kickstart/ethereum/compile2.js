@@ -1,14 +1,16 @@
+// this is just a testing file might delete later
+
 const path = require('path');
 const solc = require('solc');
 const fs = require('fs-extra');
 
-// Delete the build folder
+//deleting the build folder
 const buildPath = path.resolve(__dirname, 'build');
-fs.removeSync(buildPath);
-
+fs.removeSync(buildPath);   
 const contractFilePath = path.resolve(__dirname, 'contracts', 'Campaign.sol');
 const source = fs.readFileSync(contractFilePath, 'utf8');
 
+//Create proper compiler input
 const input = {
   language: 'Solidity',
   sources: {
@@ -25,18 +27,18 @@ const input = {
   }
 };
 
-// If this throws, it means solc.compile is returning an object not a string
-const result = solc.compile(JSON.stringify(input));
-console.log('Result type:', typeof result); // ← DEBUG
-const compiled = typeof result === 'string' ? JSON.parse(result) : result;
+const compiled = solc.compile(JSON.stringify(input));
+//here i removed json.parse because solc.compile is returning object andd not string which causes it to crash
 
-fs.ensureDirSync(buildPath);
+//creating the build foldrer
+fs.ensureDirSync(buildPath); //if the folder does not exits this command creates it for us
 
+
+//this loops over the contract and the outputs 2 files for each contract
 for (let contractName in compiled.contracts['Campaign.sol']) {
   fs.outputJsonSync(
     path.resolve(buildPath, `${contractName}.json`),
     compiled.contracts['Campaign.sol'][contractName]
   );
 }
-
 console.log("Compilation complete!");
