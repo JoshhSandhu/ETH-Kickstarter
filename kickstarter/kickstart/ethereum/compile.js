@@ -41,6 +41,8 @@ if (output.errors) {
 fs.ensureDirSync(buildPath);
 const contracts = output.contracts['Campaign.sol'];
 
+
+//a for in loop is used to itterate over the keys of an object
 for (let contractName in contracts) {
   fs.outputJsonSync(
     path.resolve(buildPath, `${contractName}.json`),
