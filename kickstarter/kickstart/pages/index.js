@@ -1,11 +1,8 @@
 import React from "react";
+import { Card } from 'semantic-ui-react';
 import factory from "../ethereum/factory.js";
 
 class campaignindex extends React.Component {
-    // async componentDidMount() {
-    //     const campaigns = await factory.methods.getDeployedCampaigns().call();
-    //     console.log(campaigns);
-    // }
     static async getInitialProps() 
     {
         const campaigns = await factory.methods.getDeployedCampaigns().call();
@@ -13,14 +10,18 @@ class campaignindex extends React.Component {
         return { campaigns };
     }
 
-    // async componentDidMount() {
-    //     try {
-    //         const campaigns = await factory.methods.getDeployedCampaigns().call();
-    //         console.log("Deployed campaigns:", campaigns);
-    //     } catch (err) {
-    //         console.error("Error fetching campaigns:", err);
-    //     }
-    // }
+    renderCampaigns(){
+        //this is going to give us the list of objects where each object represents a single card
+        const items = this.props.campaigns.map(address => {
+            return{
+                header: address,
+                description: <a>veiw campaign</a>,
+                fluid: true
+            }
+        });
+
+        return <Card.Group items={items} />
+    }
 
     render() {
         const { campaigns } = this.props;
@@ -29,7 +30,16 @@ class campaignindex extends React.Component {
             return <div>no campaigns found</div>
         }
 
-        return <div>first campaign {campaigns[0]}</div>
+        return <div>
+            <body>
+                <link
+                    async
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/semantic-ui@2/dist/semantic.min.css"
+                />
+            </body>
+            {this.renderCampaigns()}
+        </div>
     }
 }
 
