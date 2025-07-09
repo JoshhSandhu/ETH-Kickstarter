@@ -4,7 +4,7 @@ import { Menu } from "semantic-ui-react";
 
 const Header = () => {
     return (
-        <Menu>
+        <Menu style={{ marginTop: "10px" }}>
             <Menu.Item>
                 CrowdCoin
             </Menu.Item>
