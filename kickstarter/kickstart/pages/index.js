@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Button } from 'semantic-ui-react';
 import factory from "../ethereum/factory.js";
+import Layout from "../components/layout.js";
 
 class campaignindex extends React.Component {
     static async getInitialProps() 
@@ -30,22 +31,27 @@ class campaignindex extends React.Component {
             return <div>no campaigns found</div>
         }
 
-        return <div>
-            <body>
-                <link
-                    async
-                    rel="stylesheet"
-                    href="https://cdn.jsdelivr.net/npm/semantic-ui@2/dist/semantic.min.css"
+        return (
+        <Layout> 
+            <div>
+                <body>
+                    <link
+                        async
+                        rel="stylesheet"
+                        href="https://cdn.jsdelivr.net/npm/semantic-ui@2/dist/semantic.min.css"
+                    />
+                </body>
+                <h3>Open Campaigns</h3>
+                {this.renderCampaigns()}
+                <Button
+                    content = "create campaign"
+                    icon = "add circle"
+                    primary
+                    floated = "right"
                 />
-            </body>
-            {this.renderCampaigns()}
-            <Button
-                content = "create campaign"
-                icon = "add circle"
-                primary
-                floated = "right"
-            />
-        </div>
+            </div>
+        </Layout>
+        );
     }
 }
 
