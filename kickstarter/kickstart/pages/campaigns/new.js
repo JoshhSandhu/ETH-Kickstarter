@@ -7,11 +7,14 @@ import web3 from "../../ethereum/web3";
 class campaignNew extends Component {
     state = {
         minimumcontribution: '',
-        errorMessage: ''
+        errorMessage: '',
+        loading: false
     };
 
     onSubmit = async (event) => {
         event.preventDefault();
+        this.setState({loading: true, errorMessage: ''});
+
         try{
             const accounts = await web3.eth.getAccounts();
             await factory.methods
@@ -22,6 +25,8 @@ class campaignNew extends Component {
         } catch (error){
             this.setState({errorMessage: error.message});
         }
+
+        this.setState({loading: false});
     }
 
     render() {
@@ -38,7 +43,9 @@ class campaignNew extends Component {
                         />
                     </Form.Field>
                     <Message error header="Ooops!" content={this.state.errorMessage} />
-                    <Button primary>Create!</Button>
+                    <Button loading = {this.state.loading} primary>
+                        Create!
+                    </Button>
                 </Form>
             </Layout>
         );
