@@ -1,1 +1,3 @@
-const routes = require('next-routes').Router();
+const routes = require('next-routes')();
+
+module.exports = routes;
