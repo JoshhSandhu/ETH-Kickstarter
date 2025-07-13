@@ -26,7 +26,7 @@ class campaignNew extends Component {
             this.setState({errorMessage: error.message});
         }
 
-        this.setState({loading: false});
+        this.setState({loading: false, minimumcontribution: ''});
     }
 
     render() {
