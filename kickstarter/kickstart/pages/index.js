@@ -31,12 +31,6 @@ class campaignindex extends React.Component {
     }
 
     render() {
-        const { campaigns } = this.props;
-
-        if(!campaigns || campaigns.length === 0){
-            return <div>no campaigns found</div>
-        }
-
         return (
         <Layout> 
             <div>
